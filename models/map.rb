@@ -26,14 +26,15 @@ class Map
 
   # Tetriminoが最下部に到達したら、Blocksに変換する
   # 横に揃っている行があればBlockを消す
-  def update_blocks(blocks, tetrimino)
-    return blocks, tetrimino unless bottom?(tetrimino) # Blockが最下部に到達したらBlockを更新
+  def update_blocks(blocks, tetrimino, score)
+    return blocks, tetrimino, score unless bottom?(tetrimino) # Blockが最下部に到達したらBlockを更新
     break_index = [] # 横に揃っている行の場所
     tmp_map = Marshal.load(Marshal.dump(map))
     tmp_map.each.with_index do |row, i|
       break_index << i if row.count { |r| r == 1 } == WIDTH
     end
     break_index.reverse.each do |index|
+      score += 1
       tmp_map.delete_at(index) # reverseしておかないとdelete_atで消すべきindexが変わってしまう
     end
     break_index.count.times do
@@ -46,7 +47,14 @@ class Map
       end
     end
     update(blocks, tetrimino)
-    return blocks, Tetrimino.new(map) # 新規Tetriminoを返す
+    begin
+      input = Timeout.timeout(0.5) do
+        STDIN.getch while true
+      end
+    rescue Timeout::Error
+      puts input
+    end
+    return blocks, Tetrimino.new(map), score # 新規Tetriminoを返す
   end
 
   private

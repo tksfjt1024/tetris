@@ -93,7 +93,8 @@ class Tetrimino
 
   def move(map, key, time, start)
     dx, dy = 0, 0
-    dy += (time / 10 + 1) if Time.now.to_f - time.to_f - start.to_f >= 1.0
+    # 30秒経過するごとに落下速度があがる
+    dy += 1 if (Time.now.to_f - time.to_f - start.to_f) % (1.0 / (time / 30 + 1)) < 0.05
     if key == "\e" && STDIN.getch == "["
       case STDIN.getch
       when "B" # 下
