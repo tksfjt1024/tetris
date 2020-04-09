@@ -1,15 +1,9 @@
 class Block
+  attr_reader :x, :y
+
   def initialize(x, y)
     @x = x
     @y = y
-  end
-
-  def x
-    @x
-  end
-
-  def y
-    @y
   end
 
   # dx・dyだけ移動

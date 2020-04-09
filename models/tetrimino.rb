@@ -9,6 +9,8 @@ class Tetrimino
     t
   ]
 
+  attr_reader :blocks
+
   def initialize(map)
     @type = TYPES.sample # ランダムで落ちてくる
     @status = 0
@@ -85,10 +87,6 @@ class Tetrimino
       Block.new(x + 1, y + 1),
       Block.new(x - 1, y + 1),
     ]
-  end
-
-  def blocks
-    @blocks
   end
 
   def move(map, key, time, start)

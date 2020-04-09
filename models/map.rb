@@ -1,12 +1,10 @@
 class Map
   BLOCKES = ["□ ", "■ "]
 
+  attr_reader :map
+
   def initialize
     @map = zero_array
-  end
-
-  def map
-    @map
   end
 
   # BlocksとTetriminoからMapデータを更新する
@@ -48,11 +46,10 @@ class Map
     end
     update(blocks, tetrimino)
     begin
-      input = Timeout.timeout(0.5) do
+      Timeout.timeout(0.5) do
         STDIN.getch while true
       end
     rescue Timeout::Error
-      puts input
     end
     return blocks, Tetrimino.new(map), score # 新規Tetriminoを返す
   end
