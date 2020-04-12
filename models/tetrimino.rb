@@ -160,9 +160,9 @@ class Tetrimino
   # Gameが続行されるか判断
   def gameover(map)
     if collapse?(map, 0, 1)
-      puts "----------------------"
-      puts "-  G A M E  O V E R  -"
-      puts "----------------------"
+      puts "-----------------------"
+      puts "-  G A M E   O V E R  -"
+      puts "-----------------------"
       exit
     end
   end

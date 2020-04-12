@@ -8,7 +8,7 @@ require "./models/tetrimino"
 require "./models/map"
 
 HEIGHT = 30
-WIDTH = 10
+WIDTH = 12
 
 x = 0
 y = 0
@@ -23,7 +23,7 @@ start = Time.now.to_i
 
 while true
   begin
-    key = Timeout.timeout(0.05) do
+    key = Timeout.timeout(0.1) do
       STDIN.getch
     end
   rescue Timeout::Error
