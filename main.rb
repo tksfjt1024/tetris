@@ -15,7 +15,7 @@ y = 0
 
 blocks = []
 map = Map.new
-tetrimino = Tetrimino.new(map.map)
+tetrimino = Tetrimino.new(map.map, map.score)
 
 while true
   begin
@@ -34,5 +34,5 @@ while true
 
   map.display
 
-  blocks, tetrimino, score = map.update_blocks(blocks, tetrimino, score)
+  blocks, tetrimino = map.update_blocks(blocks, tetrimino)
 end

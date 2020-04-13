@@ -5,16 +5,19 @@ class Map
   attr_reader :start
   attr_reader :time
   attr_reader :score
+  attr_reader :bottom_check
 
   def initialize
     @map = zero_array
-    @start = Time.now.to_i
-    @time = 0
+    @start = Time.now.to_f
+    @time = 0.0
     @score = 0
+    @bottom_check = 0.0
   end
 
   # BlocksとTetriminoからMapデータを更新する
   def update(blocks, tetrimino)
+    @time = Time.now.to_f - start
     @map = zero_array
     (blocks + tetrimino.blocks).each do |block|
       @map[block.y][block.x] = 1
@@ -23,7 +26,6 @@ class Map
 
   # Mapの表示
   def display(map = @map)
-    puts "time: #{@time = Time.now.to_i - start} sec"
     puts "score: #{score} lines"
     puts "- " * WIDTH
 
@@ -36,8 +38,8 @@ class Map
 
   # Tetriminoが最下部に到達したら、Blocksに変換する
   # 横に揃っている行があればBlockを消す
-  def update_blocks(blocks, tetrimino, score)
-    return blocks, tetrimino, score unless bottom?(tetrimino) # Blockが最下部に到達したらBlockを更新
+  def update_blocks(blocks, tetrimino)
+    return blocks, tetrimino unless bottom?(tetrimino) # Blockが最下部に到達したらBlockを更新
     break_index = [] # 横に揃っている行の場所
     tmp_map = Marshal.load(Marshal.dump(map))
     tmp_map.each.with_index do |row, i|
@@ -47,8 +49,6 @@ class Map
     # 揃った行を点滅させる
 
     if !break_index.empty?
-      wait(0.5)
-
       tmp_broken_map = tmp_map.map.with_index do |row, i|
         if break_index.include?(i)
           Array.new(WIDTH, 0)
@@ -89,7 +89,7 @@ class Map
 
     wait(0.5)
 
-    return blocks, Tetrimino.new(map), score # 新規Tetriminoを返す
+    return blocks, Tetrimino.new(map, score) # 新規Tetriminoを返す
   end
 
   private
@@ -109,8 +109,15 @@ class Map
   end
 
   # Tetriminoが最下部に到達したか判断
+  # 遊びを1秒設ける
   def bottom?(tetrimino)
-    tetrimino.collapse?(map, 0, 1)
+    @bottom_check = time if bottom_check == 0.0
+    if time - bottom_check > 1.0
+      @bottom_check = 0.0
+      tetrimino.collapse?(map, 0, 1)
+    else
+      false
+    end
   end
 
   def wait(time)
