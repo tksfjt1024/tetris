@@ -10,26 +10,14 @@ class Tetrimino
     l
     t
   ]
-  ORDINAL_NUMBER = %w[
-    1st
-    2nd
-    3rd
-    4th
-    5th
-    6th
-    7th
-    8th
-    9th
-    10th
-  ]
 
   attr_reader :blocks
 
-  def initialize(map, score)
+  def initialize(map)
     @type = TYPES.sample # ランダムで落ちてくる
     @status = 0
     send("create_#{@type}_tetrimino")
-    gameover(map, score) # Gameが続行されるか判断
+    map.display_result if collapse?(map.map, 0, 1) # Gameが続行されるか判断
   end
 
   # 各Tetriminoのデータ
@@ -106,7 +94,7 @@ class Tetrimino
   def move(map, key)
     dx, dy = 0, 0
     # 30秒経過するごとに落下速度があがる
-    dy += 1 if (Time.now.to_f - map.time.to_i - map.start.to_i) % (1.0 / (map.time.to_f / 30 + 1)) < 0.1
+    dy += 1 if (Time.now.to_f - map.time.to_i - map.start.to_i) % (1.0 / (map.time.to_f / 60 + 1)) < 0.1
     if key == "\e" && STDIN.getch == "["
       case STDIN.getch
       when "B" # 下
@@ -170,31 +158,6 @@ class Tetrimino
   end
 
   private
-
-  # Gameが続行されるか判断
-  def gameover(map, score)
-    if collapse?(map, 0, 1)
-      scores = CSV.read("scores.csv")[0]&.map(&:to_i) || []
-      scores << score
-      scores.sort
-      CSV.open("scores.csv", "w") do |csv|
-        csv << scores
-      end
-      puts "-------------------"
-      puts "- G A M E O V E R -"
-      puts "-------------------"
-
-      # ランキングとスコアの表示
-      rank = scores&.count { |si| si > score } || 0
-      puts "score: #{score} lines rank: #{ORDINAL_NUMBER[rank]}"
-      puts "-- RANK --"
-      scores[0, 9].each do |si|
-        rank = scores.count { |sj| sj > si }
-        puts "#{ORDINAL_NUMBER[rank]}: #{si} lines"
-      end
-      exit
-    end
-  end
 
   # 各Tetriminoの回転データ
   # statusと配列のindexが対応する

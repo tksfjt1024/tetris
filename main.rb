@@ -7,15 +7,15 @@ require "./models/block"
 require "./models/tetrimino"
 require "./models/map"
 
-HEIGHT = 30
-WIDTH = 12
+HEIGHT = 20
+WIDTH = 10
 
 x = 0
 y = 0
 
 blocks = []
 map = Map.new
-tetrimino = Tetrimino.new(map.map, map.score)
+tetrimino = Tetrimino.new(map)
 
 while true
   begin
@@ -26,7 +26,9 @@ while true
     key = nil
   end
 
-  exit if key == "\C-c" # command+C で終了
+  map.display_result if key == "\C-c" # command+C で終了
+
+  puts "\e[H\e[2J" # 画面のクリア
 
   tetrimino.move(map, key) # 一番最後に追加されたブロックだけ動かせる
 

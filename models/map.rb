@@ -1,6 +1,19 @@
 class Map
   BLOCKES = ["□ ", "■ "]
 
+  ORDINAL_NUMBER = %w[
+    1st
+    2nd
+    3rd
+    4th
+    5th
+    6th
+    7th
+    8th
+    9th
+    10th
+  ]
+
   attr_reader :map
   attr_reader :start
   attr_reader :time
@@ -8,7 +21,7 @@ class Map
   attr_reader :bottom_check
 
   def initialize
-    @map = zero_array
+    @map = zero_matrix
     @start = Time.now.to_f
     @time = 0.0
     @score = 0
@@ -18,7 +31,7 @@ class Map
   # BlocksとTetriminoからMapデータを更新する
   def update(blocks, tetrimino)
     @time = Time.now.to_f - start
-    @map = zero_array
+    @map = zero_matrix
     (blocks + tetrimino.blocks).each do |block|
       @map[block.y][block.x] = 1
     end
@@ -26,6 +39,7 @@ class Map
 
   # Mapの表示
   def display(map = @map)
+    puts "\e[H\e[2J"
     puts "score: #{score} lines"
     puts "- " * WIDTH
 
@@ -34,6 +48,29 @@ class Map
     end
 
     puts "- " * WIDTH
+  end
+
+  # 結果の表示
+  def display_result
+    scores = CSV.read("scores.csv")[0]&.map(&:to_i) || []
+    scores << score
+    scores = scores.sort.reverse
+    CSV.open("scores.csv", "w") do |csv|
+      csv << scores
+    end
+    puts "-------------------"
+    puts "- G A M E O V E R -"
+    puts "-------------------"
+
+    # ランキングとスコアの表示
+    rank = scores&.count { |si| si > score } || 0
+    puts "score: #{score} lines rank: #{ORDINAL_NUMBER[rank]}"
+    puts "-- RANK --"
+    scores[0, 9].each do |si|
+      rank = scores.count { |sj| sj > si }
+      puts "#{ORDINAL_NUMBER[rank]}: #{si} lines"
+    end
+    exit
   end
 
   # Tetriminoが最下部に到達したら、Blocksに変換する
@@ -51,7 +88,7 @@ class Map
     if !break_index.empty?
       tmp_broken_map = tmp_map.map.with_index do |row, i|
         if break_index.include?(i)
-          Array.new(WIDTH, 0)
+          zero_array
         else
           row
         end
@@ -77,7 +114,7 @@ class Map
       tmp_map.delete_at(index) # reverseしておかないとdelete_atで消すべきindexが変わってしまう
     end
     break_index.count.times do
-      tmp_map.unshift(Array.new(WIDTH, 0)) #　消した分上から0埋め
+      tmp_map.unshift(zero_array) #　消した分上から0埋め
     end
     blocks = [] # Blocksは洗い替え
     HEIGHT.times do |j|
@@ -89,14 +126,19 @@ class Map
 
     wait(0.5)
 
-    return blocks, Tetrimino.new(map, score) # 新規Tetriminoを返す
+    return blocks, Tetrimino.new(self) # 新規Tetriminoを返す
   end
 
   private
 
   # 初期化用の零配列
   def zero_array
-    Array.new(HEIGHT).map { Array.new(WIDTH, 0) }
+    Array.new(WIDTH, 0)
+  end
+
+  # 初期化用の零行列
+  def zero_matrix
+    Array.new(HEIGHT).map { zero_array }
   end
 
   # 標準出力に変換
