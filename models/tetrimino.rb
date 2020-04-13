@@ -89,10 +89,10 @@ class Tetrimino
     ]
   end
 
-  def move(map, key, time, start)
+  def move(map, key)
     dx, dy = 0, 0
     # 30秒経過するごとに落下速度があがる
-    dy += 1 if (Time.now.to_f - time.to_f - start.to_f) % (1.0 / (time / 30 + 1)) < 0.05
+    dy += 1 if (Time.now.to_f - map.time.to_f - map.start.to_f) % (1.0 / (map.time.to_f / 30 + 1)) < 0.1
     if key == "\e" && STDIN.getch == "["
       case STDIN.getch
       when "B" # 下
@@ -103,11 +103,11 @@ class Tetrimino
         dx -= 1
       end
     elsif key == " " # Space
-      rotate_tetrimino(map) # Spaceで回転
+      rotate_tetrimino(map.map) # Spaceで回転
     end
 
     # 壁やBlockにぶつからなければkeyに応じてBlocksの位置を更新
-    unless collapse?(map, dx, dy)
+    unless collapse?(map.map, dx, dy)
       @blocks.each do |block|
         block.move(dx, dy)
       end

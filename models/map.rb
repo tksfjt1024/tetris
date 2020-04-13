@@ -2,9 +2,15 @@ class Map
   BLOCKES = ["□ ", "■ "]
 
   attr_reader :map
+  attr_reader :start
+  attr_reader :time
+  attr_reader :score
 
   def initialize
     @map = zero_array
+    @start = Time.now.to_i
+    @time = 0
+    @score = 0
   end
 
   # BlocksとTetriminoからMapデータを更新する
@@ -16,10 +22,16 @@ class Map
   end
 
   # Mapの表示
-  def display
-    @map.map do |row|
+  def display(map = @map)
+    puts "time: #{@time = Time.now.to_i - start} sec"
+    puts "score: #{score} lines"
+    puts "- " * WIDTH
+
+    map.map do |row|
       convert(row) # 標準出力に変換
     end
+
+    puts "- " * WIDTH
   end
 
   # Tetriminoが最下部に到達したら、Blocksに変換する
@@ -31,8 +43,37 @@ class Map
     tmp_map.each.with_index do |row, i|
       break_index << i if row.count { |r| r == 1 } == WIDTH
     end
+
+    # 揃った行を点滅させる
+
+    if !break_index.empty?
+      wait(0.5)
+
+      tmp_broken_map = tmp_map.map.with_index do |row, i|
+        if break_index.include?(i)
+          Array.new(WIDTH, 0)
+        else
+          row
+        end
+      end
+
+      display(tmp_broken_map)
+
+      wait(0.5)
+
+      display
+
+      wait(0.5)
+
+      display(tmp_broken_map)
+
+      wait(1.0)
+    end
+
+    # 点滅終わり
+
     break_index.reverse.each do |index|
-      score += 1
+      @score += 1
       tmp_map.delete_at(index) # reverseしておかないとdelete_atで消すべきindexが変わってしまう
     end
     break_index.count.times do
@@ -45,12 +86,9 @@ class Map
       end
     end
     update(blocks, tetrimino)
-    begin
-      Timeout.timeout(0.5) do
-        STDIN.getch while true
-      end
-    rescue Timeout::Error
-    end
+
+    wait(0.5)
+
     return blocks, Tetrimino.new(map), score # 新規Tetriminoを返す
   end
 
@@ -73,5 +111,14 @@ class Map
   # Tetriminoが最下部に到達したか判断
   def bottom?(tetrimino)
     tetrimino.collapse?(map, 0, 1)
+  end
+
+  def wait(time)
+    begin
+      Timeout.timeout(time) do
+        STDIN.getch while true
+      end
+    rescue Timeout::Error
+    end
   end
 end
