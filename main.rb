@@ -16,6 +16,7 @@ y = 0
 blocks = []
 map = Map.new
 tetrimino = Tetrimino.new(map)
+map.update_next_map(tetrimino)
 
 while true
   begin
@@ -32,7 +33,7 @@ while true
 
   tetrimino.move(map, key) # 一番最後に追加されたブロックだけ動かせる
 
-  map.update(blocks, tetrimino) # 動かしたらMapを更新
+  map.update_map(blocks, tetrimino) # 動かしたらMapを更新
 
   map.display
 

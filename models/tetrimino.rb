@@ -12,18 +12,22 @@ class Tetrimino
   ]
 
   attr_reader :blocks
+  attr_reader :next_type
+  attr_reader :next_blocks
 
-  def initialize(map)
-    @type = TYPES.sample # ランダムで落ちてくる
+  def initialize(map, type = TYPES.sample)
+    @type = type
+    @next_type = TYPES.sample # ランダムで落ちてくる
     @status = 0
-    send("create_#{@type}_tetrimino")
+    @blocks = send("create_#{@type}_tetrimino")
+    @next_blocks = send("create_#{@next_type}_tetrimino")
     map.display_result if collapse?(map.map, 0, 1) # Gameが続行されるか判断
   end
 
   # 各Tetriminoのデータ
   def create_i_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x, y + 1),
       Block.new(x, y + 2),
@@ -33,7 +37,7 @@ class Tetrimino
 
   def create_o_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x + 1, y),
       Block.new(x, y + 1),
@@ -43,7 +47,7 @@ class Tetrimino
 
   def create_s_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x + 1, y),
       Block.new(x, y + 1),
@@ -53,7 +57,7 @@ class Tetrimino
 
   def create_z_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x - 1, y),
       Block.new(x, y + 1),
@@ -63,7 +67,7 @@ class Tetrimino
 
   def create_j_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x, y + 1),
       Block.new(x, y + 2),
@@ -73,7 +77,7 @@ class Tetrimino
 
   def create_l_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x, y + 1),
       Block.new(x, y + 2),
@@ -83,7 +87,7 @@ class Tetrimino
 
   def create_t_tetrimino
     x, y = WIDTH / 2 - 1, 0
-    @blocks = [
+    [
       Block.new(x, y),
       Block.new(x, y + 1),
       Block.new(x + 1, y + 1),
@@ -94,9 +98,9 @@ class Tetrimino
   def move(map, key)
     dx, dy = 0, 0
     # 30秒経過するごとに落下速度があがる
-    dy += 1 if (Time.now.to_f - map.time.to_i - map.start.to_i) % (1.0 / (map.time.to_f / 60 + 1)) < 0.1
-    if key == "\e" && STDIN.getch == "["
-      case STDIN.getch
+    dy += 1 if (Time.now.to_f - map.time.to_i - map.start.to_i) % (1.0 / (map.time.to_f / 60 + 1)) < 0.1 && !map.bottom?(self)
+    if key == "\e" && stdin_getch == "["
+      case stdin_getch
       when "B" # 下
         dy += 1
       when "C" # 右
@@ -133,11 +137,13 @@ class Tetrimino
     @blocks.each do |block|
       x, y = block.x, block.y
       tmp_map[y][x] -= 1
-      # 画面外に出る時はreturn
-      return true if y + dy < 0 || y + dy >= HEIGHT || x + dx < 0 || x + dx >= WIDTH
-      tmp_map[y + dy][x + dx] += 1
     end
-    tmp_map.flatten.count { |block| block == 2 } > 0
+    @blocks.each do |block|
+      x, y = block.x, block.y
+      # 画面外に出る時はreturn
+      return true if y + dy < 0 || y + dy >= HEIGHT || x + dx < 0 || x + dx >= WIDTH || tmp_map[y + dy][x + dx] == 1
+    end
+    false
   end
 
   # 回転可能か判断
@@ -151,13 +157,22 @@ class Tetrimino
     blocks.each do |block|
       x, y = block.x, block.y
       # 画面外に出る時はreturn
-      return false if y < 0 || y >= HEIGHT || x < 0 || x >= WIDTH
-      tmp_map[y][x] += 1
+      return false if y < 0 || y >= HEIGHT || x < 0 || x >= WIDTH || tmp_map[y][x] == 1
     end
-    tmp_map.flatten.count { |block| block == 2 }.zero?
+    true
   end
 
   private
+
+  def stdin_getch
+    begin
+      Timeout.timeout(0.2) do
+        STDIN.getch
+      end
+    rescue Timeout::Error
+      nil
+    end
+  end
 
   # 各Tetriminoの回転データ
   # statusと配列のindexが対応する
