@@ -1,18 +1,7 @@
 class Map
   BLOCKES = ["□ ", "■ "]
 
-  ORDINAL_NUMBER = %w[
-    1st
-    2nd
-    3rd
-    4th
-    5th
-    6th
-    7th
-    8th
-    9th
-    10th
-  ]
+  SCORES = [0, 40, 100, 300, 1200]
 
   attr_reader :map
   attr_reader :start
@@ -40,7 +29,7 @@ class Map
   # Mapの表示
   def display(map = @map)
     puts "\e[H\e[2J"
-    puts "score: #{score} lines"
+    puts "score: #{score} points"
     puts "- " * WIDTH
 
     map.map do |row|
@@ -63,12 +52,12 @@ class Map
     puts "-------------------"
 
     # ランキングとスコアの表示
-    rank = scores&.count { |si| si > score } || 0
-    puts "score: #{score} lines rank: #{ORDINAL_NUMBER[rank]}"
-    puts "-- RANK --"
-    scores[0, 9].each do |si|
-      rank = scores.count { |sj| sj > si }
-      puts "#{ORDINAL_NUMBER[rank]}: #{si} lines"
+    rank = scores&.count { |si| si > score } + 1 || 1
+    puts "score: #{score} points rank: #{ordinalize(rank)}"
+    puts "  ---   R A N K   ---  "
+    scores[0, 10].each do |si|
+      rank = scores.count { |sj| sj > si } + 1
+      puts "#{ordinalize(rank)}:\t#{si}\tpoints"
     end
     exit
   end
@@ -109,8 +98,9 @@ class Map
 
     # 点滅終わり
 
+    @score += SCORES[break_index.size] * (time.to_i / 60 + 1)
+
     break_index.reverse.each do |index|
-      @score += 1
       tmp_map.delete_at(index) # reverseしておかないとdelete_atで消すべきindexが変わってしまう
     end
     break_index.count.times do
@@ -168,6 +158,20 @@ class Map
         STDIN.getch while true
       end
     rescue Timeout::Error
+    end
+  end
+
+  def ordinalize(num)
+    if num >= 11 && num <= 13
+      "#{num}th"
+    elsif num % 10 == 1
+      "#{num}st"
+    elsif num % 10 == 2
+      "#{num}nd"
+    elsif num % 10 == 3
+      "#{num}rd"
+    else
+      "#{num}th"
     end
   end
 end
