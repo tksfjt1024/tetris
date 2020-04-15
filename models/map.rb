@@ -1,5 +1,5 @@
 class Map
-  BLOCKES = ["□ ", "■ "]
+  BLOCKS = ["□ ", "■ "]
 
   SCORES = [0, 40, 100, 300, 1200]
 
@@ -38,18 +38,19 @@ class Map
 
   # Mapの表示
   def display(map = @map)
-    puts "\e[H\e[2J"
+    system("clear") # 画面のクリア
+
     puts "score: #{score} points"
 
     puts "- " * WIDTH
 
-    next_map.map do |row|
+    next_map.each do |row|
       convert(row) # 標準出力に変換
     end
 
     puts "- " * WIDTH
 
-    map.map do |row|
+    map.each do |row|
       convert(row) # 標準出力に変換
     end
 
@@ -155,23 +156,51 @@ class Map
 
   # 初期化用の零配列
   def zero_array
-    Array.new(WIDTH, 0)
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   end
 
   # 初期化用の零行列
   def zero_matrix
-    Array.new(HEIGHT).map { zero_array }
+    [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
   end
 
   def zero_matrix_2
-    Array.new(4).map { zero_array }
+    [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
   end
 
   # 標準出力に変換
   def convert(row)
     str = ""
-    row.each do |block|
-      str << BLOCKES[block]
+    i = 0
+    while row[i]
+      str << BLOCKS[row[i]]
+      i += 1
     end
     puts str
   end

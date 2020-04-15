@@ -112,6 +112,8 @@ class Tetrimino
       rotate_tetrimino(map.map) # Spaceで回転
     end
 
+    return if dx == 0 && dy == 0
+
     # 壁やBlockにぶつからなければkeyに応じてBlocksの位置を更新
     unless collapse?(map.map, dx, dy)
       @blocks.each do |block|

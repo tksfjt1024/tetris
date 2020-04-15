@@ -29,8 +29,6 @@ while true
 
   map.display_result if key == "\C-c" # command+C で終了
 
-  puts "\e[H\e[2J" # 画面のクリア
-
   tetrimino.move(map, key) # 一番最後に追加されたブロックだけ動かせる
 
   map.update_map(blocks, tetrimino) # 動かしたらMapを更新
