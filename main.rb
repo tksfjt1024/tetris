@@ -10,9 +10,6 @@ require "./models/map"
 HEIGHT = 20
 WIDTH = 10
 
-x = 0
-y = 0
-
 blocks = []
 map = Map.new
 tetrimino = Tetrimino.new(map)
