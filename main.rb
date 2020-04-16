@@ -27,7 +27,7 @@ while true
     key = nil
   end
 
-  map.display_result if key == "\C-c" # command+C で終了
+  map.display_result if key == "\C-c" # ctl+C で終了
 
   tetrimino.move(map, key) # 一番最後に追加されたブロックだけ動かせる
 
